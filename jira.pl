@@ -9,7 +9,8 @@ sub sig_message_public {
   if ($target =~ /#(?:accumulo)/) { # only operate in these channels
     my @tickets = ();
     foreach my $w ($msg =~ /(\S+)/g) {
-      push(@tickets, "https://issues.apache.org/jira/browse/ACCUMULO-$w") if ($w =~ /^\d+$/);
+      push(@tickets, "https://issues.apache.org/jira/browse/ACCUMULO-$w") if ($w =~ /^\d{3,5}$/);
+      push(@tickets, "https://issues.apache.org/jira/browse/$w") if ($w =~ /^ACCUMULO-\d{3,5}$/);
     }
     my $response = 'msg ' . $target . ' Possible JIRAs: ' . join(', ', @tickets);
     $server->command($response) if (scalar(@tickets) > 0);
