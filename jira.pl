@@ -16,7 +16,7 @@ our %IRSSI = (
 
 my $jira = 'https://issues.apache.org/jira';
 my $jira_proj = 'ACCUMULO';
-my $response_prefix = 'Possible JIRA mentioned: ';
+my $response_prefix = ''; # 'Possible JIRA mentioned: ';
 my $test_message;
 my $test_channel = 'test';
 my @projects = (
