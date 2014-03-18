@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Getopt::Long qw( :config posix_default bundling no_ignore_case );
 use Irssi;
-use CHI;
 
 our $VERSION = '0.1';
 our %IRSSI = (
@@ -20,15 +19,6 @@ my $jira_proj = 'ACCUMULO';
 my $response_prefix = ''; # 'Possible JIRA mentioned: ';
 my $test_message;
 my $test_channel = 'test';
-my $cache = CHI->new(
-  driver => 'Memory',
-  global => 1,
-  namespace => 'irssi-jira',
-  max_size => 1024*1024,
-  expires_in => '15 minutes'
-);
-
-
 my @projects = (
   'ABDERA', 'ACCUMULO', 'ACE', 'ACL', 'ADDR', 'ADFFACES', 'AGILA', 'AIRAVATA',
   'ALOIS', 'AMBARI', 'AMBER', 'AMQ', 'AMQCPP', 'AMQNET', 'ANAKIA', 'ANY23',
@@ -105,14 +95,10 @@ sub parse_args {
 sub respond_in_channel {
   my ($server, $channel, $response) = @_;
   my $line = 'msg ' . $channel . ' ' . $response;
-  my $cached_line = $cache->get($line);
-  if ( !defined $cached_line ) {
-    $cache->set($line => $line);
-    if ($test_message) {
-      print $line . "\n";
-    } else {
-      $server->command($line);
-    }
+  if ($test_message) {
+    print $line . "\n";
+  } else {
+    $server->command($line);
   }
 }
 
