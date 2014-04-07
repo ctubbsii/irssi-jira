@@ -53,6 +53,7 @@ sub sig_message_public {
   my $projline = join('|', @projects);
   if ($target =~ /^#(?:accumulo|test)$/) { # only operate in these channels
     foreach my $w ($msg =~ /(\S+)/g) {
+      $w =~ s/(?:^[,.]+)|(?:[,.]+$)//g # remove leading or trailing commas and periods
       if ($w =~ /^\d{4,5}$/) {
         &respond_in_channel($server, $target, "${response_prefix}$jira/browse/${jira_proj}-$w");
       } elsif ($w =~ /^(?:${projline})-\d{1,5}$/i) {
