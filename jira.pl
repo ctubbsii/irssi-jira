@@ -84,6 +84,7 @@ sub check_asfbot {
 sub sig_message_public {
   my ($server, $msg, $nick, $nick_addr, $target) = @_;
   my $projline = join('|', @projects);
+  unless ($nick =~ /kurc/i || $nick_addr =~ /gizmolabs/i) { # defeat tony
   if ($target =~ /^#(?:accumulo|test)$/) { # only operate in these channels
     my $found_asfbot = &check_asfbot($server, $target);
     my %responses = ();
@@ -101,6 +102,7 @@ sub sig_message_public {
       &respond_in_channel($server, $target, $resp, $responses{$resp});
     }
   }
+  } # defeat tony
 }
 
 &irssi_jira_main();
