@@ -16,6 +16,7 @@ our %IRSSI = (
 
 my $jira = 'https://issues.apache.org/jira';
 my $jira_proj = 'ACCUMULO';
+my $max_responses = 5;
 my $response_prefix = ''; # 'Possible JIRA mentioned: ';
 my $test_message;
 my $test_user = 'test_user';
@@ -56,14 +57,19 @@ sub sig_message_public {
   my ($server, $msg, $nick, $nick_addr, $target) = @_;
   my $projline = join('|', @projects);
   if ($target =~ /^#(?:accumulo|test)$/) { # only operate in these channels
+    my %responses = ();
     foreach my $w ($msg =~ /(\S+)/g) {
+      last if (scalar(keys(%responses)) >= $max_responses);
       $w =~ s/[,.:;)]+$//; # remove trailing punctuation
       $w =~ s/^[(]+//; # remove leading parens
       if ($w =~ /^\d{4,5}$/) {
-        &respond_in_channel($server, $target, "${response_prefix}$jira/browse/${jira_proj}-$w");
+        $responses{"${response_prefix}$jira/browse/${jira_proj}-$w"} = 1;
       } elsif ($w =~ /^(?:${projline})-\d{1,5}$/i) {
-        &respond_in_channel($server, $target, "${response_prefix}$jira/browse/" . uc($w));
+        $responses{"${response_prefix}$jira/browse/" . uc($w)} = 1;
       }
+    }
+    foreach my $resp (keys(%responses)) {
+      &respond_in_channel($server, $target, $resp);
     }
   }
 }
