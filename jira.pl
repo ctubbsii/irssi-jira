@@ -60,7 +60,7 @@ sub sig_message_public {
     my %responses = ();
     foreach my $w ($msg =~ /(\S+)/g) {
       last if (scalar(keys(%responses)) >= $max_responses);
-      $w =~ s/[,.:;)]+$//; # remove trailing punctuation
+      $w =~ s/[,.:;)!?]+$//; # remove trailing punctuation
       $w =~ s/^[(]+//; # remove leading parens
       if ($w =~ /^\d{4,5}$/) {
         $responses{"${response_prefix}$jira/browse/${jira_proj}-$w"} = 1;
