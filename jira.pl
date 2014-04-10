@@ -68,7 +68,7 @@ sub sig_message_public {
         $responses{"${response_prefix}$jira/browse/" . uc($w)} = 1;
       }
     }
-    foreach my $resp (keys(%responses)) {
+    foreach my $resp (sort(keys(%responses))) {
       &respond_in_channel($server, $target, $resp);
     }
   }
