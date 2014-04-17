@@ -17,6 +17,7 @@ our %IRSSI = (
 
 my $jira = 'https://issues.apache.org/jira';
 my $jira_proj = 'ACCUMULO';
+my $asfbot_aware = 1;
 my $max_responses = 5;
 my $response_prefix = ''; # 'Possible JIRA mentioned: ';
 my $response_user = ''; # set to user nick to reply to user instead of room
@@ -53,10 +54,10 @@ sub parse_args {
 }
 
 sub respond_in_channel {
-  my ($server, $channel, $response) = @_;
+  my ($server, $channel, $response, $refresh_cache_only) = @_;
   my $line = 'msg ' . $response_user . (length($response_user) == 0 ? '' : ' ') . $channel . ' ' . $response;
   my $cached_line = $cache->get($line);
-  if ( !defined $cached_line ) {
+  if (!defined $cached_line && !$refresh_cache_only) {
     $cache->set($line => $line);
     if ($test_message) {
       print $line . "\n";
@@ -64,25 +65,40 @@ sub respond_in_channel {
       $server->command($line);
     }
   }
+  if ($refresh_cache_only) {
+    $cache->set($line => $line);
+  }
+}
+
+sub check_asfbot {
+  my ($server, $channel) = @_;
+  if ($asfbot_aware && !$test_message) {
+    my @nicks = $server->channel_find($channel)->nicks();
+    foreach my $n (@nicks) {
+      return 1 if ($n->{nick} =~ /ASFBot/i);
+    }
+  }
+  return 0;
 }
 
 sub sig_message_public {
   my ($server, $msg, $nick, $nick_addr, $target) = @_;
   my $projline = join('|', @projects);
   if ($target =~ /^#(?:accumulo|test)$/) { # only operate in these channels
+    my $found_asfbot = &check_asfbot($server, $target);
     my %responses = ();
     foreach my $w ($msg =~ /(\S+)/g) {
       last if (scalar(keys(%responses)) >= $max_responses);
       $w =~ s/[,.:;)!?]+$//; # remove trailing punctuation
       $w =~ s/^[(]+//; # remove leading parens
       if ($w =~ /^\d{4,5}$/) {
-        $responses{"${response_prefix}$jira/browse/${jira_proj}-$w"} = 1;
+        $responses{"${response_prefix}$jira/browse/${jira_proj}-$w"} = 0;
       } elsif ($w =~ /^(?:${projline})-\d{1,5}$/i) {
-        $responses{"${response_prefix}$jira/browse/" . uc($w)} = 1;
+        $responses{"${response_prefix}$jira/browse/" . uc($w)} = $found_asfbot ? 1 : 0;
       }
     }
     foreach my $resp (sort(keys(%responses))) {
-      &respond_in_channel($server, $target, $resp);
+      &respond_in_channel($server, $target, $resp, $responses{$resp});
     }
   }
 }
