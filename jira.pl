@@ -19,6 +19,7 @@ my $jira = 'https://issues.apache.org/jira';
 my $jira_proj = 'ACCUMULO';
 my $max_responses = 5;
 my $response_prefix = ''; # 'Possible JIRA mentioned: ';
+my $response_user = ''; # set to user nick to reply to user instead of room
 my $test_message;
 my $test_user = 'test_user';
 my $test_addr = 'test_addr';
@@ -53,7 +54,7 @@ sub parse_args {
 
 sub respond_in_channel {
   my ($server, $channel, $response) = @_;
-  my $line = 'msg ' . $channel . ' ' . $response;
+  my $line = 'msg ' . $response_user . (length($response_user) == 0 ? '' : ' ') . $channel . ' ' . $response;
   my $cached_line = $cache->get($line);
   if ( !defined $cached_line ) {
     $cache->set($line => $line);
