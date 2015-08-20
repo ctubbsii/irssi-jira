@@ -17,10 +17,10 @@ our %IRSSI = (
 
 my $jira = 'https://issues.apache.org/jira';
 my $jira_proj = 'ACCUMULO';
-my $asfbot_aware = 1;
+my $asfbot_aware = 0;
 my $max_responses = 5;
 my $response_prefix = ''; # 'Possible JIRA mentioned: ';
-my $response_user = ''; # set to user nick to reply to user instead of room
+my $response_user = 'ctubbsii'; # set to user nick to reply to user instead of room
 my $test_message;
 my $test_user = 'test_user';
 my $test_addr = 'test_addr';
